@@ -131,6 +131,9 @@ export function createGame(options = {}) {
   let spreadGoal = 1
   let beat = 0 // how far through its wing beats the dragon is, in radians
   let flap = 0 // where the wings are in the beat: −1 down, 1 up
+  // Inverted controls, as in a plane: pushing up (W, the up arrow, or pointing above the
+  // dragon) dives, and pulling down climbs.
+  let inverted = !!options.invert
 
   const spinAngle = () => (craft.spin < 0 ? 0 : craft.spinDir * Math.PI * 2 * inOut(craft.spin))
 
@@ -274,11 +277,12 @@ export function createGame(options = {}) {
       want = tune.turnRate * (0.55 * Math.sin(time * 0.37) + 0.35 * Math.sin(time * 0.83 + 2))
       handsOn = false
     }
+    const upward = inverted ? -1 : 1
     if (input.climb !== 0) {
-      altGoal += input.climb * climbMax * dt
+      altGoal += input.climb * upward * climbMax * dt
     } else if (pointing && behind) {
       // from behind: point above the craft to climb, below it to dive
-      const raw = clamp((craftY - input.y) / (fb.height * 0.4), -1, 1)
+      const raw = upward * clamp((craftY - input.y) / (fb.height * 0.4), -1, 1)
       const up = (Math.sign(raw) * Math.max(0, Math.abs(raw) - 0.08)) / 0.92
       altGoal = up >= 0 ? tune.altitude + up * (tune.ceiling - tune.altitude) : tune.altitude + up * (tune.altitude - floor)
     } else if (!handsOn) {
@@ -501,6 +505,14 @@ export function createGame(options = {}) {
     /** 'top', 'chase' or 'cockpit' */
     setView(name) {
       goal = Math.max(0, VIEWS.indexOf(name))
+    },
+    /** swaps up and down on the keys and the pointer, or swaps them back */
+    toggleInvert() {
+      inverted = !inverted
+    },
+    /** true when up and down are swapped, as in a plane */
+    get inverted() {
+      return inverted
     },
     /** pulls the slices of the stack apart, or puts them back */
     toggleSpread() {

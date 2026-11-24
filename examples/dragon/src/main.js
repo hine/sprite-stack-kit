@@ -2,29 +2,60 @@
 
 import { createGame } from './game.js'
 
-// ?seed=3 picks the world, and ?view=chase or ?view=cockpit picks the view to start in
+// ?seed=3 picks the world, ?view=chase or ?view=cockpit picks the view to start in, and
+// ?invert=1 or ?invert=0 turns the up/down swap on or off. Otherwise the swap is as the
+// player last left it on this browser.
 const query = new URLSearchParams(location.search)
+const SAVED = 'dragon-invert'
+const remembered = (() => {
+  try {
+    return localStorage.getItem(SAVED) === '1'
+  } catch {
+    return false
+  }
+})()
 const game = createGame({
   seed: Number(query.get('seed')) || 7,
   view: query.get('view') ?? 'top',
+  invert: query.has('invert') ? query.get('invert') === '1' : remembered,
 })
 const canvas = document.getElementById('game')
 const ctx = canvas.getContext('2d')
 const hint = document.getElementById('hint')
 const viewButton = document.getElementById('view')
+const invertButton = document.getElementById('invert')
 
 const touch = matchMedia('(pointer: coarse)').matches
-const HINTS = touch
-  ? {
-      top: 'ドラッグで操縦 · タップで回転 · 長押しで火を吐く · 「視点」で後ろからの視点へ',
-      chase: 'ドラッグで操縦と上昇・下降 · タップで回転 · 長押しで火を吐く · 「視点」で鞍の視点へ',
-      cockpit: 'ドラッグで操縦と上昇・下降 · 「視点」で上からの視点へ',
-    }
-  : {
-      top: 'マウスで操縦 · クリックで回転 · 長押しで火を吐く · W/S で上昇・下降 · スペースで後ろからの視点へ · E で重ねた板を分解',
-      chase: 'マウスの位置で操縦と上昇・下降 · クリックで回転 · 長押しで火を吐く · スペースで鞍の視点へ',
-      cockpit: 'マウスの位置で操縦と上昇・下降 · クリックで回転 · 長押しで火を吐く · スペースで上からの視点へ',
-    }
+// What moves the dragon up and down, in words, for the hints: it depends on the up/down swap.
+const climbWords = (inverted) => (touch ? (inverted ? '下へドラッグで上昇' : '上へドラッグで上昇') : inverted ? 'S で上昇・W で下降' : 'W で上昇・S で下降')
+const hints = (inverted) =>
+  touch
+    ? {
+        top: `ドラッグで操縦 · タップで回転 · 長押しで火を吐く · 「視点」で後ろからの視点へ`,
+        chase: `ドラッグで操縦 · ${climbWords(inverted)} · タップで回転 · 長押しで火を吐く · 「視点」で鞍の視点へ`,
+        cockpit: `ドラッグで操縦 · ${climbWords(inverted)} · 「視点」で上からの視点へ`,
+      }
+    : {
+        top: `マウスで操縦 · クリックで回転 · 長押しで火を吐く · ${climbWords(inverted)} · スペースで後ろからの視点へ · E で重ねた板を分解 · I で上下反転`,
+        chase: `マウスの位置で操縦 · ${inverted ? 'マウスを下に置くと上昇' : 'マウスを上に置くと上昇'} · クリックで回転 · 長押しで火を吐く · スペースで鞍の視点へ · I で上下反転`,
+        cockpit: `マウスの位置で操縦 · ${inverted ? 'マウスを下に置くと上昇' : 'マウスを上に置くと上昇'} · クリックで回転 · 長押しで火を吐く · スペースで上からの視点へ · I で上下反転`,
+      }
+let HINTS = hints(game.inverted)
+
+/** Shows the up/down swap on its button and in the hints, and remembers it on this browser. */
+function showInvert() {
+  invertButton.textContent = game.inverted ? '上下反転：オン' : '上下反転：オフ'
+  invertButton.setAttribute('aria-pressed', String(game.inverted))
+  HINTS = hints(game.inverted)
+  shownView = '' // the hint is redrawn on the next frame
+  try {
+    localStorage.setItem(SAVED, game.inverted ? '1' : '0')
+  } catch {}
+}
+function toggleInvert() {
+  game.toggleInvert()
+  showInvert()
+}
 
 let pixel = 3 // screen pixels per game pixel
 let image = null
@@ -74,6 +105,7 @@ canvas.addEventListener('pointerleave', (e) => {
 })
 canvas.addEventListener('contextmenu', (e) => e.preventDefault())
 viewButton.addEventListener('click', () => game.nextView())
+invertButton.addEventListener('click', toggleInvert)
 
 // ── keys
 const held = new Set()
@@ -92,6 +124,8 @@ addEventListener('keydown', (e) => {
     if (!e.repeat) game.nextView()
   } else if (e.code === 'KeyE') {
     if (!e.repeat) game.toggleSpread()
+  } else if (e.code === 'KeyI') {
+    if (!e.repeat) toggleInvert()
   } else if (e.code === 'KeyR') {
     if (!e.repeat) game.roll()
   } else {
@@ -112,4 +146,5 @@ addEventListener('blur', () => {
 addEventListener('resize', fit)
 
 fit()
+showInvert()
 requestAnimationFrame(tick)

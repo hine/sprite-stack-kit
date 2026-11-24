@@ -7,6 +7,8 @@ A reskin of the starter: a red dragon over a desert of dunes, mesas and oases. I
 - **The desert** (`src/world.js`): curved dunes with a steep slip face, red mesas in one or two tiers, and oasis pools with palms in the lowest hollows.
 - **The saddle** (`src/cockpit.js`): the cockpit view, riding on the dragon's back. Its scaled back and neck run ahead to the horned head, the wings beat from its shoulders, and the rider's gloved hands hold reins that run to the jaw. A brass compass is set in the saddle, and two saddlebags hold a parchment map and the speed, height and heading.
 
+- **Up and down swapped** (`src/game.js`, `src/main.js`): an option that works like a plane's stick, where pulling back climbs. The 上下反転 button or the I key turns it on or off, the browser remembers it, and `?invert=1` or `?invert=0` in the address sets it. It swaps the W/S keys and the pointer's height in the chase and saddle views. `states.js` has a rule that holding the up key climbs, or dives when swapped.
+
 Run it from the repository root with `bun scripts/serve.mjs examples/dragon`.
 
 ---
