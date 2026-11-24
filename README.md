@@ -1,3 +1,57 @@
+# ドラゴン版 sprite-stack-kit（フォーク）
+
+このリポジトリは [RayFernando1337/sprite-stack-kit](https://github.com/RayFernando1337/sprite-stack-kit) をフォークしたものです。元のキットを使って、オリジナルのゲーム「**ドラゴン**」を作りました。赤いドラゴンに乗って砂漠の上を飛ぶゲームです。
+
+### ▶ すぐ遊べるデモ
+
+**https://kumi0708.github.io/sprite-stack-kit/examples/dragon/**
+
+ブラウザで開くだけで遊べます。インストールは要りません。スマホでも動きます。
+
+| 上から | 後ろから |
+| --- | --- |
+| ![上から見たドラゴンとオアシス](examples/dragon/screenshots/top.jpg) | ![後ろから見た、砂漠を滑空するドラゴン](examples/dragon/screenshots/chase.jpg) |
+| **オアシスの上を飛ぶ** | **背中に乗った視点** |
+| ![オアシスの上を飛ぶドラゴン](examples/dragon/screenshots/oasis.jpg) | ![ドラゴンの背中から見た景色](examples/dragon/screenshots/saddle.jpg) |
+
+### 遊び方
+
+| 操作 | パソコン | スマホ |
+| --- | --- | --- |
+| 操縦 | マウスを動かす（W/S キーで上昇・下降） | ドラッグ |
+| 火を吐く・加速 | 長押し | 長押し |
+| 一回転 | クリック | タップ |
+| 視点を変える（上から → 後ろから → 背中の上） | スペースキー、または右上の「視点」 | 右上の「視点」 |
+
+### このフォークで作ったもの
+
+ゲームはすべて [examples/dragon](examples/dragon) にあります。元の見本ゲーム（`examples/starter`）は、手を加えずにそのまま残しています。
+
+- **ドラゴン**：3Dエンジンを使わず、ドット絵の板を何枚も重ねて立体に見せています（スプライトスタック）。翼の形を7通り作って切り替えるので、飛びながら羽ばたきます。
+- **火を吐く**：ボタンを長押ししている間、口から炎を吐いて加速します。
+- **砂漠**：うねる砂丘、赤い岩の台地（メサ）、ヤシの木が生えたオアシスの池を、プログラムで自動生成しています。アドレスの最後に `?seed=3` のように数字を付けると、別の砂漠になります。
+- **背中に乗った視点**：首と角のある頭、羽ばたく翼、手綱を握る手が見えます。鞍には方位磁石があり、左右の鞍袋に地図と速さ・高さ・向きが出ます。
+- **日本語表示**：画面の文字はすべて日本語です。
+
+### 自分のパソコンで動かす
+
+[Bun](https://bun.sh) を入れてから、このリポジトリのフォルダで次を実行します。
+
+```sh
+bun scripts/serve.mjs examples/dragon
+```
+
+表示されたアドレスをブラウザで開いてください。
+
+### クレジット
+
+- キット：[RayFernando1337/sprite-stack-kit](https://github.com/RayFernando1337/sprite-stack-kit)（MIT ライセンス）
+- 技法の元になったゲーム：Dash（[@creativedash](https://x.com/creativedash)）の「fighter」
+
+この下は、元のリポジトリの説明（英語）です。
+
+---
+
 # sprite-stack-kit
 
 Build pixel-art games that look 3D, with no 3D engine.
